@@ -1,9 +1,6 @@
 #include <Trade\Trade.mqh>
-//#include <EconomicCalendar\EconomicCalendar.mqh>
-//#include <Calendar\Calendar.mqh>
 #include <JAson.mqh>
 #include <ErrorDescription.mqh>
-//#include <MT5WebRequest.mqh>
 
 input string Symbol1 = "USD JPY"; // 通貨ペア1
 input string Symbol2 = "EUR USD"; // 通貨ペア2
@@ -18,7 +15,6 @@ string GOOGLE_CLOUD_API_KEY = "your_google_cloud_api_key_here";
 string GOOGLE_CLOUD_NLP_API_URL = "https://language.googleapis.com/v1/documents:analyzeSentiment?key=" + GOOGLE_CLOUD_API_KEY;
 
 CTrade Trade;
-CCalendar Calendar;
 MqlCalendarValue EconomicEvents[];
 
 datetime LastEventCheck;
@@ -56,7 +52,7 @@ void OnTimer()
    if ((current_hour == 9 || current_hour == 21) && current_minute == 0)
    {
       double sentiment_score = GetSentimentScore(Symbol1);
-      AnalyzeNewsAndTrade(sentimentScore);
+      AnalyzeNewsAndTrade(sentiment_score);
    }
 
 
@@ -74,7 +70,7 @@ void OnTimer()
       if (MathAbs(EconomicEvents[i].time - current_time) <= 60) // イベントの発生時刻
       {
          double sentiment_score = GetSentimentScore(Symbol1);
-         AnalyzeNewsAndTrade(sentimentScore);
+         AnalyzeNewsAndTrade(sentiment_score);
 
          break;
       }
@@ -272,7 +268,7 @@ void GetEconomicEvents()
    datetime from_time = TimeCurrent();
    datetime to_time = from_time + 7 * 86400; // 1週間後
 
-   int total_events = Calendar.GetEventList(from_time, to_time, NULL, events);
+   int total_events = CalendarValueHistory(events, from_time, to_time, NULL, "JPY");
 
    if (total_events <= 0)
    {
