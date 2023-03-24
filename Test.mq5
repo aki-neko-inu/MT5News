@@ -238,10 +238,15 @@ double AnalyzeSentiment(string news_title)
 {
     // リクエストボディを作成
     string request_body = "{\"document\":{\"type\":\"PLAIN_TEXT\",\"content\":\"" + news_title + "\"}}";
+    char request_body_char[];
+    
+    // string型からchar[]型への変換
+    StringToCharArray(request_body, request_body_char);
 
     // WebRequest()を使ってAPIからデータを取得
     char result[];
-    int res = WebRequest("POST", GOOGLE_CLOUD_NLP_API_URL, "Content-Type: application/json", 0, request_body, result, 0, 10000);
+    string headers;
+    int res = WebRequest("POST", GOOGLE_CLOUD_NLP_API_URL, "Content-Type: application/json", 0, request_body_char, result, headers);
     if (res == -1)
     {
         Print("WebRequest failed. Error code: ", GetLastError());
