@@ -1,6 +1,9 @@
 #include <Trade\Trade.mqh>
+//#include <EconomicCalendar\EconomicCalendar.mqh>
+//#include <Calendar\Calendar.mqh>
 #include <JAson.mqh>
 #include <ErrorDescription.mqh>
+//#include <MT5WebRequest.mqh>
 
 input string Symbol1 = "USD JPY"; // 通貨ペア1
 input string Symbol2 = "EUR USD"; // 通貨ペア2
@@ -52,7 +55,7 @@ void OnTimer()
    if ((current_hour == 9 || current_hour == 21) && current_minute == 0)
    {
       double sentiment_score = GetSentimentScore(Symbol1);
-      AnalyzeNewsAndTrade(sentiment_score);
+      AnalyzeNewsAndTrade(Symbol1, sentiment_score);
    }
 
 
@@ -70,7 +73,7 @@ void OnTimer()
       if (MathAbs(EconomicEvents[i].time - current_time) <= 60) // イベントの発生時刻
       {
          double sentiment_score = GetSentimentScore(Symbol1);
-         AnalyzeNewsAndTrade(sentiment_score);
+         AnalyzeNewsAndTrade(Symbol1, sentiment_score);
 
          break;
       }
@@ -86,18 +89,27 @@ double GetSentimentScore(string query)
    StringReplace(query, " ", "%20");
    
    string url = StringFormat("https://contextualwebsearch.com/api/v2/NewsSearchApi?q=%s&apiKey=%s", query, NewsAPIKey);
-   string news_data;
-   if (WebRequest("GET", url, NULL, 0, NULL, news_data) == -1)
+   char data_char[];
+   char news_data_char[];
+   string header;
+   if (WebRequest("GET", url, NULL, 0, data_char, news_data_char, header) == -1)
    {
       Print("Failed to get news data");
-      return;
+      
+      return 0;
    }
+
+    // 配列のサイズを取得
+    int arraySize = ArraySize(news_data_char);
+
+    // CharArrayToString 関数を使用して char 配列を string に変換
+    string news_data = CharArrayToString(news_data_char, 0, arraySize - 1);
 
    // ニュースデータを解析し、買いまたは売りシグナルを判断する
    return AnalyzeSentiment(news_data);
 }
 
-void AnalyzeNewsAndTrade(double sentiment_score)
+void AnalyzeNewsAndTrade(string symbol, double sentiment_score)
 {
     // パラメータ設定
     double lotSize = CalculateLotSize(RiskTolerance);
