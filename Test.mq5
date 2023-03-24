@@ -118,7 +118,7 @@ void AnalyzeNewsAndTrade(string symbol, double sentiment_score)
     if (sentiment_score >= 0.2) // ポジティブなスコアがある場合
     {
         // 買いシグナル
-        if (ExecuteMarketOrder(symbol, OP_BUY, lotSize, slippage, stopLoss, takeProfit, trailingStop))
+        if (ExecuteMarketOrder(symbol, ORDER_TYPE_BUY, lotSize, slippage, stopLoss, takeProfit, trailingStop))
         {
             Print("Buy order executed successfully for ", symbol);
         }
@@ -126,7 +126,7 @@ void AnalyzeNewsAndTrade(string symbol, double sentiment_score)
     else if (sentiment_score <= -0.2) // ネガティブなスコアがある場合
     {
         // 売りシグナル
-        if (ExecuteMarketOrder(symbol, OP_SELL, lotSize, slippage, stopLoss, takeProfit, trailingStop))
+        if (ExecuteMarketOrder(symbol, ORDER_TYPE_SELL, lotSize, slippage, stopLoss, takeProfit, trailingStop))
         {
             Print("Sell order executed successfully for ", symbol);
         }
@@ -182,7 +182,7 @@ bool ExecuteMarketOrder(string symbol, int operation, double lotSize, int slippa
     request.symbol = symbol;
     request.volume = lotSize;
     request.type = operation;
-    request.price = operation == OP_BUY ? SymbolInfoDouble(symbol, SYMBOL_ASK) : SymbolInfoDouble(symbol, SYMBOL_BID);
+    request.price = operation == ORDER_TYPE_BUY ? SymbolInfoDouble(symbol, SYMBOL_ASK) : SymbolInfoDouble(symbol, SYMBOL_BID);
     request.sl = stopLoss;
     request.tp = takeProfit;
     request.deviation = slippage;
@@ -208,7 +208,7 @@ bool ExecuteMarketOrder(string symbol, int operation, double lotSize, int slippa
         modifyRequest.order = ticket;
         modifyRequest.type = operation;
 
-        if (operation == OP_BUY)
+        if (operation == ORDER_TYPE_BUY)
         {
             double currentAsk = SymbolInfoDouble(symbol, SYMBOL_ASK);
             modifyRequest.sl = currentAsk - trailingStop * Point();
@@ -248,9 +248,11 @@ double AnalyzeSentiment(string news_title)
         return 0.0;
     }
 
+    string result_string = CharArrayToString(result);
+    
     // JSONデータを解析
     CJAVal jsRoot;
-    if (!jsRoot.Deserialize((string)result))
+    if (!jsRoot.Deserialize(result_string))
     {
         Print("JSON deserialization failed");
         return 0.0;
