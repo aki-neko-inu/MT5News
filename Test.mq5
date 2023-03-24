@@ -1,9 +1,6 @@
 #include <Trade\Trade.mqh>
-//#include <EconomicCalendar\EconomicCalendar.mqh>
-//#include <Calendar\Calendar.mqh>
 #include <JAson.mqh>
 #include <ErrorDescription.mqh>
-//#include <MT5WebRequest.mqh>
 
 input string Symbol1 = "USD JPY"; // 通貨ペア1
 input string Symbol2 = "EUR USD"; // 通貨ペア2
