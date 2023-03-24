@@ -264,7 +264,10 @@ double AnalyzeSentiment(string news_title)
     }
 
     // 感情分析のスコアを取得
-    double sentiment_score = jsRoot["documentSentiment"]["score"].ToDouble();
+    // string sentiment_score_str = jsRoot.At("documentSentiment").At("score").AsString();
+    CJAVal documentSentiment = jsRoot["documentSentiment"];
+    CJAVal score = documentSentiment["score"];
+    double sentiment_score = StringToDouble(score.ToStr());
 
     return sentiment_score;
 }
